@@ -1,0 +1,12 @@
+{
+    "name": "threejs",
+    "short_name": "Three.js Template",
+    "description": "Three.js Template",
+    "icons": [{
+        "src": "assets/web/touch-icon-192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+    }],
+    "display": "fullscreen",
+    "orientation": "landscape"
+}
