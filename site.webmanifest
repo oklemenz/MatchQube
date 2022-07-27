@@ -1,7 +1,7 @@
 {
-    "name": "threejs",
-    "short_name": "Three.js Template",
-    "description": "Three.js Template",
+    "name": "matchqube",
+    "short_name": "Match Qube",
+    "description": "Match Qube",
     "icons": [{
         "src": "assets/web/touch-icon-192.png",
         "sizes": "192x192",
