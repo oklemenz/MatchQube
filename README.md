@@ -1,8 +1,4 @@
-# Three.js Template
-
-A basic [three.js](https://threejs.org) template to get started.
-
-## Getting Started
+# Match Qube
 
 - Install: `npm install`
 - Start: `npm start`
@@ -10,4 +6,4 @@ A basic [three.js](https://threejs.org) template to get started.
 
 ## Demo
 
-- https://oklemenz.github.io/Threejs-Template/
+- https://oklemenz.github.io/MatchQube/
