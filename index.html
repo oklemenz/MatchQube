@@ -22,12 +22,39 @@
 <script type="importmap">
   {
     "imports": {
-      "three": "https://unpkg.com/three@0.142.0/build/three.module.js"
+      "three": "https://unpkg.com/three@0.146.0/build/three.module.js",
+      "OrbitControls": "https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js",
+      "RoundedBoxGeometry": "https://unpkg.com/three@0.146.0/examples/jsm/geometries/RoundedBoxGeometry.js",
+      "RGBELoader": "https://unpkg.com/three@0.146.0/examples/jsm/loaders/RGBELoader.js",
+      "Tween": "https://unpkg.com/three@0.146.0/examples/jsm/libs/tween.module.min.js"
     }
   }
-
 </script>
-<script type="module" src="src/index.js"></script>
-<div id="container"></div>
+<script type="module" src="src/game.js"></script>
+<div id="root" class="root">
+    <div id="container" class="container"></div>
+    <div class="letterbox">
+        <div class="header">
+            <div class="header_sides">
+                <div class="booster text">
+                    <div id="booster-progress" class="circular-progress">
+                        <span id="booster-text" class="progress-value">1x</span>
+                    </div>
+                </div>
+                <div id="highscore" class="highscore text">0</div>
+                <img class="crown text" src="img/crown.svg" alt="highscore"/>
+            </div>
+            <div class="header_center">
+                <div id="score" class="score text">0</div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="footer_center">
+                <div id="start" class="start text">Click to Start</div>
+                <div id="end" style="display:none" class="end text">Game Over - Click to Start</div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

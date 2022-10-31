@@ -5,13 +5,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: black;
-}
-
-@media (orientation: portrait) {
-    html,
-    body {
-        overflow: hidden;
-    }
+    overflow: hidden;
 }
 
 body,
@@ -28,20 +22,205 @@ body * {
     }
 }
 
+@media (orientation: landscape) {
+    html,
+    body {
+        width: 100vw;
+        height: 100vh;
+    }
+}
+
 canvas {
     width: 100% !important;
     height: 100% !important;
     object-fit: contain;
 }
 
-.container {
+.root {
     margin: auto;
-    width: 100vw;
-    height: calc(100vh - env(safe-area-inset-bottom, 0px));
+    width: 100%;
+    height: 100%;
 }
 
-@media (orientation: portrait) {
-    .container {
-        height: 100%;
+@media (orientation: landscape) {
+    .root {
+        width: 100vw;
+        height: 100vh;
     }
+}
+
+.container {
+    position: absolute;
+}
+
+.letterbox {
+    position: relative;
+    height: 100%;
+    touch-action: none;
+    pointer-events: none;
+}
+
+.header {
+    height: 80px;
+    width: 100%;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+}
+
+@media (orientation: landscape) {
+    .header {
+        margin-top: 20px;
+    }
+}
+
+.header_sides {
+    position: absolute;
+    width: 100%;
+    max-width: 800px;
+    height: 80px;
+    margin-left: 10px;
+    margin-right: 10px;
+    overflow: visible;
+}
+
+.header_center {
+    position: absolute;
+    width: 100%;
+    max-width: 800px;
+    height: 80px;
+}
+
+.booster {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: 800px;
+    height: 100%;
+    float: left;
+    font-size: 40px;
+    overflow: visible;
+}
+
+.score {
+    position: relative;
+    top: 0;
+    width: 100px;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 60px;
+    text-align: center;
+}
+
+.crown {
+    position: absolute;
+    top: 0;
+    right: 0;
+    float: right;
+    width: 30px;
+    margin-right: 20px;
+    margin-top: -10px;
+}
+
+.highscore {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    float: right;
+    font-size: 45px;
+    margin-top: 10px;
+    margin-right: 20px;
+    text-align: right;
+}
+
+.start-pulse {
+    transform: scale(1);
+    animation: pulse 1s;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.25);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.text {
+    color: white;
+    font-weight: 600;
+    -webkit-text-stroke: 2px black;
+    font-family: Arial, serif, bold;
+}
+
+.circular-progress {
+    position: relative;
+    height: 70px;
+    width: 70px;
+    border-radius: 50%;
+    background: conic-gradient(orange 0deg, black 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.circular-progress::before {
+    content: "";
+    position: absolute;
+    height: 55px;
+    width: 55px;
+    border-radius: 50%;
+    background-color: #fff;
+}
+
+.progress-value {
+    position: relative;
+    font-size: 25px;
+    font-weight: 600;
+    color: black;
+}
+
+.footer {
+    height: 80px;
+    width: 100%;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+}
+
+.footer_center {
+    position: absolute;
+    width: 100%;
+    max-width: 800px;
+    height: 50px;
+    bottom: 5px;
+}
+
+.start {
+    display: block;
+    position: relative;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 35px;
+    text-align: center;
+}
+
+.end {
+    display: block;
+    position: relative;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 35px;
+    text-align: center;
 }

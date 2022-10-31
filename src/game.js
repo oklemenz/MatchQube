@@ -1,11 +1,10 @@
-import * as THREE from 'three';
-
-import { OrbitControls } from 'https://unpkg.com/three@0.143.0/examples/jsm/controls/OrbitControls.js';
-import { RoundedBoxGeometry } from 'https://unpkg.com/three@0.143.0/examples/jsm/geometries/RoundedBoxGeometry.js';
-import { RGBELoader } from 'https://unpkg.com/three@0.143.0/examples/jsm/loaders/RGBELoader.js';
-import { TWEEN } from 'https://unpkg.com/three@0.143.0/examples/jsm/libs/tween.module.min'
-import { FontLoader } from 'https://unpkg.com/three@0.143.0/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'https://unpkg.com/three@0.143.0/examples/jsm/geometries/TextGeometry.js';
+import * as THREE from "three";
+import { OrbitControls } from "OrbitControls";
+import { RoundedBoxGeometry } from "RoundedBoxGeometry";
+import { RGBELoader } from "RGBELoader";
+import { TWEEN } from "Tween";
+import { Booster } from "./booster.js";
+import { Score } from "./score.js";
 
 const RED = 0xFF3B30;
 const ORANGE = 0xFF9500;
@@ -17,24 +16,18 @@ const PURPLE = 0x5856D6;
 const PINK = 0xFF2D55;
 const COLORS = [RED, GREEN, BLUE, YELLOW, ORANGE, TEAL, PURPLE, PINK];
 
-// TODOs
-// - Booster Factor, 1x, 2x (increase after match, decrease after time => circular progress indicator)
-// - Score, increased by match to score (Combos?)
-// - Highscore (localStorage)
-// - Increasing spawn frequency
-// - Increasing colors (start with 1 color)
-// - Match animation: Line (Camera through Spheres) + Particle System
-// - No-match animation: Grow/Shrink spheres one after the other
-// - Sound effects, background music (spherical) =>
-//   - https://www.youtube.com/watch?v=v032bWPTqyI
-//   - https://www.youtube.com/watch?v=-lAZfyAJKYo
-// - Partially overlapping (check point around center)
-// - Animate appear (from small to fill cube to sphere) => tweenjs
-// - Improve sounds
-// - Matrix logic (all in row (three axis), next, previous, above, below, etc..
+init();
 
 export function init() {
+  let booster = new Booster();
+  let score = new Score(booster);
+  const spheres = [];
+  const boxes = [];
+  let maxColor = 2;
+  let rotationSpeed = 0.5;
+
   const container = document.getElementById("container");
+  const start = document.getElementById("start");
 
   const clock = new THREE.Clock();
 
@@ -68,7 +61,7 @@ export function init() {
   scene.add(light);
 
   const hdrEquirect = new RGBELoader().load(
-    "hdr/neon.hdr", // adobe stock (to be licensed under oklemenz)
+    "hdr/neon.hdr",
     () => {
       hdrEquirect.mapping = THREE.EquirectangularReflectionMapping;
     }
@@ -97,11 +90,6 @@ export function init() {
     });
   });
 
-  const spheres = [];
-  const boxes = [];
-  let maxColor = 2;
-  let rotationSpeed = 0.5;
-
   const dice = new THREE.Group();
   for (let i = -1; i <= 1; i++) {
     for (let j = -1; j <= 1; j++) {
@@ -113,7 +101,6 @@ export function init() {
     }
   }
   scene.add(dice);
-  //showPressToStart();
   render();
 
   function render() {
@@ -126,6 +113,7 @@ export function init() {
 
     controls.update();
     TWEEN.update();
+    booster.update();
     renderer.render(scene, camera);
 
     checkIntersections();
@@ -136,17 +124,15 @@ export function init() {
       return;
     }
     running = true;
+    start.style.display = "none";
 
     boxes.forEach((box) => {
       box.geometry = new RoundedBoxGeometry(1, 1, 1, 16, 0.1);
     });
 
-    // new TWEEN.Tween({ val: 0 }).to({ val: 1 }, 1000).onUpdate((v) => {
-    // }).start();
-
     setInterval(() => {
       spawn();
-    }, 2500);
+    }, 500);
 
     playAmbient();
   }
@@ -155,7 +141,7 @@ export function init() {
     const index = THREE.MathUtils.randInt(0, dice.children.length - 1);
     const box = dice.children[index];
     if (box.children.length === 0) {
-      const color = THREE.MathUtils.randInt(0, maxColor);
+      const color = THREE.MathUtils.randInt(0, maxColor - 1);
       addSphere(box, metalMaterials[color]);
       playAppear();
     }
@@ -182,10 +168,10 @@ export function init() {
         return material;
       }, undefined);
       if (same) {
-        playPop();
-        intersects.forEach((intersect) => {
-          removeSphere(intersect.object);
+        const intersectionSpheres = intersects.map((intersect) => {
+          return intersect.object;
         });
+        removeSpheres(intersectionSpheres);
       }
     }
   }
@@ -210,19 +196,51 @@ export function init() {
   }
 
   function addSphere(box, material) {
-    const sphereGeometry = new THREE.SphereGeometry(0.2, 32, 16);
+    const sphereGeometry = new THREE.SphereGeometry(0.25, 32, 16);
     const sphere = new THREE.Mesh(sphereGeometry, material);
     sphere.name = `sphere:${ Object.values(box.position).join("") }`;
     box.add(sphere);
+    sphere.scale.x = 0;
+    sphere.scale.y = 0;
+    sphere.scale.z = 0;
+    const appear = new TWEEN.Tween(sphere.scale).to({
+      x: 1,
+      y: 1,
+      z: 1,
+    }, 1000).easing(TWEEN.Easing.Elastic.Out);
+    appear.start();
     spheres.push(sphere);
     return sphere;
   }
 
-  function removeSphere(sphereToBeRemoved) {
-    if (sphereToBeRemoved) {
-      sphereToBeRemoved.removeFromParent();
-      const indexOfObject = spheres.findIndex(sphere => {
-        return sphere === sphereToBeRemoved;
+  async function removeSpheres(spheres) {
+    const [firstSphere, middleSphere, lastSphere] = spheres;
+    await explodeSphere(firstSphere);
+    await explodeSphere(middleSphere);
+    await explodeSphere(lastSphere);
+    score.addScore(1);
+  }
+
+  async function explodeSphere(sphere) {
+    return new Promise((resolve) => {
+      const tween = new TWEEN.Tween(sphere.scale).to({
+        x: 20,
+        y: 20,
+        z: 20,
+      }, 250).easing(TWEEN.Easing.Elastic.In).onComplete(() => {
+        playPop();
+        removeSphere(sphere);
+        resolve();
+      });
+      tween.start();
+    });
+  }
+
+  function removeSphere(sphere) {
+    if (sphere) {
+      sphere.removeFromParent();
+      const indexOfObject = spheres.findIndex(_sphere => {
+        return _sphere === sphere;
       });
       if (indexOfObject >= 0) {
         spheres.splice(indexOfObject, 1);
@@ -280,25 +298,8 @@ export function init() {
     });
   }
 
-  function showPressToStart() {
-    const loader = new FontLoader();
-    loader.load("font/helvetiker_bold.typeface.json", (font) => {
-      const textGeometry = new TextGeometry("Press To Start", {
-        font: font,
-        size: 100,
-        height: 5,
-        curveSegments: 12,
-        bevelEnabled: true,
-        bevelThickness: 10,
-        bevelSize: 8,
-        bevelOffset: 0,
-        bevelSegments: 5
-      });
-      const material = new THREE.MeshPhongMaterial({ color: 0xffffff, flatShading: true });
-      const text = new THREE.Mesh(textGeometry, material);
-      //text.position = { x: 0, y: -80, z: 0 };
-      camera.add(text);
-    });
+  function gameOver() {
+    // TODO: Check all boxes are full
   }
 
   window.onresize = function () {
@@ -308,5 +309,3 @@ export function init() {
   }
   window.addEventListener("pointerdown", onPointerDown);
 }
-
-init();
