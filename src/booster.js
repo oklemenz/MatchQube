@@ -8,11 +8,17 @@ export class Booster {
   static STATE_WAIT     = 5;
 
   constructor() {
+    this.boosterProgress = document.getElementById("booster-progress");
+    this.boosterText = document.getElementById("booster-text");
+    this.reset();
+  }
+
+  reset() {
     this.value = 1;
     this.degree = 0;
     this.state = Booster.STATE_INITIAL;
-    this.boosterProgress = document.getElementById("booster-progress");
-    this.boosterText = document.getElementById("booster-text");
+    this.text(false);
+    this.progress();
   }
 
   charge() {
@@ -25,9 +31,11 @@ export class Booster {
     this.boosterProgress.style.background = `conic-gradient(orange ${this.degree}deg, black 0deg)`;
   }
 
-  text() {
+  text(animate = true) {
     this.boosterText.innerText = `${this.value}x`;
-    this.pulse();
+    if (animate) {
+      this.pulse();
+    }
   }
 
   pulse() {

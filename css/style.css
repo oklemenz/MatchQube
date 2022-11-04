@@ -205,7 +205,7 @@ canvas {
     bottom: 5px;
 }
 
-.start {
+.status {
     display: block;
     position: relative;
     height: 100%;
@@ -213,14 +213,5 @@ canvas {
     margin-right: auto;
     font-size: 35px;
     text-align: center;
-}
-
-.end {
-    display: block;
-    position: relative;
-    height: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    font-size: 35px;
-    text-align: center;
+    pointer-events: all;
 }

@@ -9,6 +9,10 @@ export class Score {
     this.loadHighscore();
   }
 
+  reset() {
+    this.scoreElement.innerText = 0;
+  }
+
   addScore(num = 1) {
     this.score += num * this.booster.value;
     this.booster.charge();
