@@ -1,113 +1,92 @@
 import * as THREE from "three";
-import { RoundedBoxGeometry } from "RoundedBoxGeometry";
 import { TWEEN } from "Tween";
 
-const RED = 0xFF3B30;
-const ORANGE = 0xFF9500;
-const YELLOW = 0xFFCC00;
-const GREEN = 0x4CD964;
-const TEAL = 0x5AC8FA;
-const BLUE = 0x007AFF;
-const PURPLE = 0x5856D6;
-const PINK = 0xFF2D55;
-const COLORS = [RED, GREEN, BLUE, YELLOW, ORANGE, TEAL, PURPLE, PINK];
+import { Box } from "./box.js";
 
 export class Dice extends THREE.Group {
 
-  constructor(scene, camera, audio, score) {
+  constructor(camera, audio, materials, score) {
     super();
 
-    this.scene = scene;
     this.camera = camera;
     this.audio = audio;
+    this.materials = materials;
     this.score = score;
 
-    this.clock = new THREE.Clock();
     this.raycaster = new THREE.Raycaster();
 
     this.boxes = [];
     this.spheres = [];
     this.colors = 2;
     this.spawnRate = 1000;
-    this.autoRotationSpeed = 0.5;
     this.running = false;
-
+    this.autoRotationSpeed = 0;
     this.pointer = new THREE.Vector2();
     this.pointerCheck = false;
 
-    this.glassMaterial = new THREE.MeshPhysicalMaterial({
-      roughness: 0,
-      transmission: 1, // Transparency
-      thickness: 0.3,
-      clearcoat: 0.5,
-      envMap: this.scene.background,
-      envMapIntensity: 2,
-    });
-
-    this.metalMaterials = COLORS.map((color) => {
-      return new THREE.MeshPhysicalMaterial({
-        color,
-        roughness: 0,
-        metalness: 0.65,
-        transmission: 0, // Solid
-        thickness: 1.0,
-        clearcoat: 1.0,
-        envMap: this.scene.background,
-        envMapIntensity: 1.25,
-      });
-    });
-
     this.setup();
+    this.startAutoRotate();
   }
 
   setup() {
-    for (let i = -1; i <= 1; i++) {
-      for (let j = -1; j <= 1; j++) {
-        for (let k = -1; k <= 1; k++) {
-          const box = this.addBox([i, j, k]);
-          this.boxes.push(box);
+    for (let i = -1; i <= 1; i++) { // x
+      for (let j = -1; j <= 1; j++) { // y
+        for (let k = -1; k <= 1; k++) { // z
+          const box = new Box([i, j, k], this.materials);
           this.add(box);
+          this.boxes.push(box);
         }
       }
     }
   }
 
   setPointer(x, y) {
-    this.pointer.x = x;
-    this.pointer.y = y;
-    this.pointerCheck = true;
+    if (this.running) {
+      this.pointer.x = x;
+      this.pointer.y = y;
+      this.pointerCheck = true;
+    }
   }
 
   start() {
-    this.autoRotationSpeed = 0;
+    this.reset();
     this.boxes.forEach((box) => {
-      box.geometry = new RoundedBoxGeometry(1, 1, 1, 16, 0.1);
+      box.start();
     });
     this.startSpawn();
     this.running = true;
+    this.stopAutoRotate();
   }
 
   stop() {
-    this.autoRotationSpeed = 0.5;
     this.boxes.forEach((box) => {
-      box.geometry = new RoundedBoxGeometry(1, 1, 1, 16, 0);
+      box.stop();
     });
     this.stopSpawn();
     this.running = false;
+    this.startAutoRotate();
+  }
+
+  startAutoRotate() {
+    if (!this.running) {
+      this.autoRotationSpeed = 0.5;
+    }
+  }
+
+  stopAutoRotate() {
+    this.autoRotationSpeed = 0;
   }
 
   reset() {
-    this.spheres = [];
     this.boxes.forEach((box) => {
-      for (const sphere of box.children) {
-        sphere.removeFromParent();
-      }
+      box.reset();
     });
+    this.spheres = [];
   }
 
   check() {
     for (const box of this.boxes) {
-      if (box.children.length === 0) {
+      if (!box.check()) {
         return false;
       }
     }
@@ -116,36 +95,9 @@ export class Dice extends THREE.Group {
 
   update() {
     if (this.autoRotationSpeed > 0) {
-      const delta = this.clock.getDelta();
-      this.rotation.y += this.autoRotationSpeed * delta;
+      this.rotation.y += this.autoRotationSpeed / 100;
     }
     this.checkIntersections();
-  }
-
-  addBox(position) {
-    const boxGeometry = new RoundedBoxGeometry(1, 1, 1, 16, 0);
-    const box = new THREE.Mesh(boxGeometry, this.glassMaterial);
-    box.position.set(...position);
-    box.name = `box:${ position.join("") }`;
-    return box;
-  }
-
-  addSphere(box, material) {
-    const sphereGeometry = new THREE.SphereGeometry(0.25, 32, 16);
-    const sphere = new THREE.Mesh(sphereGeometry, material);
-    sphere.name = `sphere:${ Object.values(box.position).join("") }`;
-    box.add(sphere);
-    sphere.scale.x = 0;
-    sphere.scale.y = 0;
-    sphere.scale.z = 0;
-    const appear = new TWEEN.Tween(sphere.scale).to({
-      x: 1,
-      y: 1,
-      z: 1,
-    }, 1000).easing(TWEEN.Easing.Elastic.Out);
-    appear.start();
-    this.spheres.push(sphere);
-    return sphere;
   }
 
   async removeSpheres(spheres) {
@@ -172,14 +124,12 @@ export class Dice extends THREE.Group {
   }
 
   removeSphere(sphere) {
-    if (sphere) {
-      sphere.removeFromParent();
-      const indexOfObject = this.spheres.findIndex(_sphere => {
-        return _sphere === sphere;
-      });
-      if (indexOfObject >= 0) {
-        this.spheres.splice(indexOfObject, 1);
-      }
+    sphere.box.reset();
+    const indexOfObject = this.spheres.findIndex(_sphere => {
+      return _sphere === sphere;
+    });
+    if (indexOfObject >= 0) {
+      this.spheres.splice(indexOfObject, 1);
     }
   }
 
@@ -195,30 +145,22 @@ export class Dice extends THREE.Group {
   }
 
   spawn() {
-    const startIndex = THREE.MathUtils.randInt(0, this.boxes.length - 1);
-    let index = startIndex;
-    let box = this.boxes[index];
-    let pass = false;
-    while (box.children.length > 0) {
-      index++;
-      if (index >= this.boxes.length) {
-        index = 0;
-        pass = true;
+    const index = this.randomFreeIndex();
+    if (index >= 0) {
+      const box = this.boxes[index];
+      // TODO: Random or missing (shuffle)
+      let color = this.missingColorInAxes(index);
+      if (color === -1) {
+        color = THREE.MathUtils.randInt(0, this.colors - 1);
       }
-      if (pass && index === startIndex) {
-        return;
-      }
-      box = this.children[index];
-    }
-    if (box.children.length === 0) {
-      const color = THREE.MathUtils.randInt(0, this.colors - 1);
-      this.addSphere(box, this.metalMaterials[color]);
+      const sphere = box.fill(color);
+      this.spheres.push(sphere);
       this.audio.playAppear();
     }
   }
 
   checkIntersections() {
-    if (!this.pointerCheck) {
+    if (!this.running || !this.pointerCheck) {
       return;
     }
     this.pointerCheck = false;
@@ -240,6 +182,78 @@ export class Dice extends THREE.Group {
           return intersect.object;
         });
         this.removeSpheres(intersectionSpheres);
+      }
+    }
+  }
+
+  randomFreeIndex() {
+    const startIndex = THREE.MathUtils.randInt(0, this.boxes.length - 1);
+    let index = startIndex;
+    let box = this.boxes[index];
+    let pass = false;
+    while (box.children.length > 0) {
+      index++;
+      if (index >= this.boxes.length) {
+        index = 0;
+        pass = true;
+      }
+      if (pass && index === startIndex) {
+        return -1;
+      }
+      box = this.children[index];
+    }
+    return index;
+  }
+
+  missingColorInAxes(index) {
+    const colors = {
+      x: {},
+      y: {},
+      z: {},
+    };
+    this.iterateIndexInAxes(index, (axis, iterationIndex) => {
+      const box = this.boxes[iterationIndex];
+      if (box.color >= 0) {
+        colors[axis][box.color] = colors[axis][box.color] || 0;
+        colors[axis][box.color]++;
+      }
+    });
+    for (const axis of ["x", "y", "z"]) {
+      for (const color in colors[axis]) {
+        if (colors[axis][color] === 2) {
+          return parseInt(color);
+        }
+      }
+    }
+    return -1;
+  }
+
+  convertPositionToIndex({x, y, z}) {
+    return (x + 1) + (y + 1) * 3 + (z + 1) * 9;
+  }
+
+  convertIndexToPosition(index) {
+    const z = Math.floor(index / 9) - 1;
+    const y = Math.floor((index - (z + 1) * 9) / 3) - 1;
+    const x = Math.floor((index - (z + 1) * 9) - (y + 1) * 3) - 1;
+    return { x, y, z };
+  }
+
+  iterateIndexInAxes(index, cb, axes) {
+    const p = this.convertIndexToPosition(index);
+    if (!axes || axes.includes("x")) {
+      for (let i = -1; i <= 1; i++) { // x
+        cb("x", this.convertPositionToIndex({ x: i, y: p.y, z: p.z }));
+      }
+    }
+    if (!axes || axes.includes("y")) {
+      for (let j = -1; j <= 1; j++) { // y
+        cb("y", this.convertPositionToIndex({ x: p.x, y: j, z: p.z }));
+      }
+    }
+    if (!axes || axes.includes("z")) {
+      for (let k = -1; k <= 1; k++) { // z
+        cb("z", this.convertPositionToIndex({ x: p.x, y: p.y, z: k }));
       }
     }
   }

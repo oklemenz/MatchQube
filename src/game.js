@@ -2,16 +2,14 @@ import * as THREE from "three";
 import { OrbitControls } from "OrbitControls";
 import { RGBELoader } from "RGBELoader";
 import { TWEEN } from "Tween";
+
 import { Audio } from "./audio.js";
 import { Booster } from "./booster.js";
 import { Score } from "./score.js";
+import { Materials } from "./materials.js";
 import { Dice } from "./dice.js";
 
 init();
-
-// TODO: Decrease spawnRate
-// TODO: Increase colors
-// TODO:
 
 export function init() {
   const container = document.getElementById("container");
@@ -48,30 +46,36 @@ export function init() {
   const booster = new Booster();
   const score = new Score(booster);
   const audio = new Audio(camera);
-  const dice = new Dice(scene, camera, audio, score);
+  const materials = new Materials(scene);
+  const dice = new Dice(camera, audio, materials, score);
   scene.add(dice);
   setStatus("Click to Start");
   render();
 
   function render() {
     requestAnimationFrame(render);
+
+    update();
+    renderer.render(scene, camera);
+  }
+
+  function update() {
     TWEEN.update();
     controls.update();
     booster.update();
+    dice.update();
     if (dice.check() && dice.running) {
       gameOver();
     }
-    dice.update();
-    renderer.render(scene, camera);
+    // TODO: Decrease spawnRate
+    // TODO: Increase colors
   }
 
   function startGame() {
     if (dice.running) {
       return;
     }
-    booster.reset();
     score.reset();
-    dice.reset();
     dice.start();
     audio.playAmbient();
     clearStatus();
@@ -79,6 +83,7 @@ export function init() {
 
   function gameOver() {
     dice.stop();
+    booster.reset();
     setStatus("Game Over - Click to Start");
   }
 
@@ -92,11 +97,17 @@ export function init() {
     status.style.display = "none";
   }
 
+  function onPointerDown(event) {
+    dice.stopAutoRotate();
+  }
+
   function onPointerUp(event) {
     // calculate pointer position in normalized device coordinates (-1 to +1) for both components
     dice.setPointer((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
+    dice.startAutoRotate();
   }
 
+  window.addEventListener("pointerdown", onPointerDown);
   window.addEventListener("pointerup", onPointerUp);
   status.addEventListener("click", startGame);
 
