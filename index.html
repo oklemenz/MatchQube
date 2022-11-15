@@ -1,59 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <title>Match Qube</title>
-    <meta charset="UTF-8"/>
-    <meta name="description" content="Three.js Template"/>
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0.0, viewport-fit=cover"/>
-    <meta name="mobile-web-app-capable" content="yes"/>
-    <meta name="apple-mobile-web-app-capable" content="yes"/>
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-    <meta name="apple-mobile-web-app-title" content="Three.js"/>
-    <link rel="icon" type="image/png" href="img/favicon.png"/>
-    <link rel="shortcut icon" type="image/png" href="img/touch-icon-152.png"/>
-    <link rel="apple-touch-icon" href="img/touch-icon-152.png"/>
-    <link rel="apple-touch-icon" sizes="152x152" href="img/touch-icon-152.png"/>
-    <link rel="apple-touch-icon" sizes="180x180" href="img/touch-icon-180.png"/>
-    <link rel="manifest" href="site.webmanifest"/>
-    <link type="text/css" rel="stylesheet" href="css/style.css"/>
-</head>
-<body>
-<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
-<script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.146.0/three.module.js",
-      "OrbitControls": "https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js",
-      "RoundedBoxGeometry": "https://unpkg.com/three@0.146.0/examples/jsm/geometries/RoundedBoxGeometry.js",
-      "RGBELoader": "https://unpkg.com/three@0.146.0/examples/jsm/loaders/RGBELoader.js",
-      "Tween": "https://unpkg.com/three@0.146.0/examples/jsm/libs/tween.module.min.js"
-    }
-  }
-</script>
-<script type="module" src="src/game.js"></script>
-<div id="root" class="root">
-    <div id="container" class="container"></div>
-    <div class="letterbox">
+    <meta charset="UTF-8" />
+    <meta name="description" content="Three.js Template" />
+    <meta
+      name="viewport"
+      content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0.0, viewport-fit=cover"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Three.js" />
+    <link rel="icon" type="image/png" href="img/favicon.png" />
+    <link rel="shortcut icon" type="image/png" href="img/touch-icon-152.png" />
+    <link rel="apple-touch-icon" href="img/touch-icon-152.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="img/touch-icon-152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="img/touch-icon-180.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link type="text/css" rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.146.0/three.module.js",
+          "OrbitControls": "https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js",
+          "RoundedBoxGeometry": "https://unpkg.com/three@0.146.0/examples/jsm/geometries/RoundedBoxGeometry.js",
+          "RGBELoader": "https://unpkg.com/three@0.146.0/examples/jsm/loaders/RGBELoader.js",
+          "Tween": "https://unpkg.com/three@0.146.0/examples/jsm/libs/tween.module.min.js"
+        }
+      }
+    </script>
+    <script type="module" src="src/game.js"></script>
+    <div id="root" class="root">
+      <div id="container" class="container"></div>
+      <div class="letterbox">
         <div class="header">
-            <div class="header_sides">
-                <div class="booster text">
-                    <div id="booster-progress" class="circular-progress">
-                        <span id="booster-text" class="progress-value">1x</span>
-                    </div>
-                </div>
-                <div id="highscore" class="highscore text">0</div>
-                <img class="crown text" src="img/crown.svg" alt="highscore"/>
+          <div class="header_sides">
+            <div class="booster text">
+              <div id="booster-progress" class="circular-progress">
+                <span id="booster-text" class="progress-value">1x</span>
+              </div>
             </div>
-            <div class="header_center">
-                <div id="score" class="score text">0</div>
-            </div>
+            <div id="highscore" class="highscore text">0</div>
+            <img class="crown text" src="img/crown.svg" alt="highscore" />
+          </div>
+          <div class="header_center">
+            <div id="score" class="score text">0</div>
+          </div>
         </div>
         <div class="footer">
-            <div class="footer_center">
-                <div id="status" class="status text"></div>
-            </div>
+          <div class="footer_center">
+            <div id="status" class="status text"></div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
-</body>
+  </body>
 </html>

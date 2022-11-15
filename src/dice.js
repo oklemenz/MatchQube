@@ -4,7 +4,6 @@ import { TWEEN } from "Tween";
 import { Box } from "./box.js";
 
 export class Dice extends THREE.Group {
-
   constructor(camera, audio, materials, score) {
     super();
 
@@ -14,12 +13,17 @@ export class Dice extends THREE.Group {
     this.score = score;
 
     this.raycaster = new THREE.Raycaster();
+    this.clock = new THREE.Clock();
 
     this.boxes = [];
     this.spheres = [];
     this.colors = 2;
-    this.spawnRate = 1000;
+    this.colorIncreaseRate = 100;
+    this.spawnRate = 3000;
+    this.minSpawnRate = 1000;
+    this.spawnDecreaseRate = 10;
     this.running = false;
+    this.autoRotationSpeed = 0;
     this.autoRotationSpeed = 0;
     this.pointer = new THREE.Vector2();
     this.pointerCheck = false;
@@ -29,9 +33,12 @@ export class Dice extends THREE.Group {
   }
 
   setup() {
-    for (let i = -1; i <= 1; i++) { // x
-      for (let j = -1; j <= 1; j++) { // y
-        for (let k = -1; k <= 1; k++) { // z
+    for (let i = -1; i <= 1; i++) {
+      // x
+      for (let j = -1; j <= 1; j++) {
+        // y
+        for (let k = -1; k <= 1; k++) {
+          // z
           const box = new Box([i, j, k], this.materials);
           this.add(box);
           this.boxes.push(box);
@@ -48,12 +55,17 @@ export class Dice extends THREE.Group {
     }
   }
 
+  resetPointer() {
+    this.pointer.x = 0;
+    this.pointer.y = 0;
+    this.pointerCheck = false;
+  }
+
   start() {
     this.reset();
     this.boxes.forEach((box) => {
       box.start();
     });
-    this.startSpawn();
     this.running = true;
     this.stopAutoRotate();
   }
@@ -62,7 +74,6 @@ export class Dice extends THREE.Group {
     this.boxes.forEach((box) => {
       box.stop();
     });
-    this.stopSpawn();
     this.running = false;
     this.startAutoRotate();
   }
@@ -97,6 +108,12 @@ export class Dice extends THREE.Group {
     if (this.autoRotationSpeed > 0) {
       this.rotation.y += this.autoRotationSpeed / 100;
     }
+    const delta = this.clock.getElapsedTime() * 1000;
+    if (delta > this.spawnRate) {
+      this.clock.stop();
+      this.spawn();
+      this.clock.start();
+    }
     this.checkIntersections();
   }
 
@@ -108,24 +125,59 @@ export class Dice extends THREE.Group {
     this.score.addScore(1);
   }
 
+  async blockSphere(sphere) {
+    const tweenGrow = new TWEEN.Tween(sphere.scale)
+      .to(
+        {
+          x: 1.5,
+          y: 1.5,
+          z: 1.5
+        },
+        250
+      )
+      .easing(TWEEN.Easing.Elastic.In)
+      .onComplete(() => {
+        this.audio.playBlock();
+        const tweenShrink = new TWEEN.Tween(sphere.scale)
+          .to(
+            {
+              x: 1,
+              y: 1,
+              z: 1
+            },
+            250
+          )
+          .easing(TWEEN.Easing.Elastic.Out);
+        tweenShrink.start();
+      });
+    tweenGrow.start();
+  }
+
   async explodeSphere(sphere) {
     return new Promise((resolve) => {
-      const tween = new TWEEN.Tween(sphere.scale).to({
-        x: 20,
-        y: 20,
-        z: 20,
-      }, 250).easing(TWEEN.Easing.Elastic.In).onComplete(() => {
-        this.audio.playPop();
-        this.removeSphere(sphere);
-        resolve();
-      });
+      // TODO: Particle explode (refine tween)
+      const tween = new TWEEN.Tween(sphere.scale)
+        .to(
+          {
+            x: 20,
+            y: 20,
+            z: 20
+          },
+          250
+        )
+        .easing(TWEEN.Easing.Elastic.In)
+        .onComplete(() => {
+          this.audio.playPop();
+          this.removeSphere(sphere);
+          resolve();
+        });
       tween.start();
     });
   }
 
   removeSphere(sphere) {
     sphere.box.reset();
-    const indexOfObject = this.spheres.findIndex(_sphere => {
+    const indexOfObject = this.spheres.findIndex((_sphere) => {
       return _sphere === sphere;
     });
     if (indexOfObject >= 0) {
@@ -133,29 +185,27 @@ export class Dice extends THREE.Group {
     }
   }
 
-  startSpawn() {
-    this.stopSpawn();
-    this.spawnInterval = setInterval(() => {
-      this.spawn();
-    }, this.spawnRate);
-  }
-
-  stopSpawn() {
-    clearInterval(this.spawnInterval);
-  }
-
   spawn() {
+    if (!this.running) {
+      return;
+    }
     const index = this.randomFreeIndex();
     if (index >= 0) {
       const box = this.boxes[index];
-      // TODO: Random or missing (shuffle)
-      let color = this.missingColorInAxes(index);
+      let color = -1;
+      const random = THREE.MathUtils.randInt(0, 1) === 1;
+      if (!random) {
+        color = this.missingColorInAxes(index);
+      }
       if (color === -1) {
         color = THREE.MathUtils.randInt(0, this.colors - 1);
       }
       const sphere = box.fill(color);
       this.spheres.push(sphere);
       this.audio.playAppear();
+      if (this.spawnRate > this.minSpawnRate) {
+        this.spawnRate -= this.spawnDecreaseRate;
+      }
     }
   }
 
@@ -178,11 +228,14 @@ export class Dice extends THREE.Group {
         return material;
       }, undefined);
       if (same) {
-        const intersectionSpheres = intersects.map((intersect) => {
+        const spheres = intersects.map((intersect) => {
           return intersect.object;
         });
-        this.removeSpheres(intersectionSpheres);
+        this.removeSpheres(spheres);
       }
+    } else if (intersects.length > 0) {
+      const sphere = intersects[0].object;
+      this.blockSphere(sphere);
     }
   }
 
@@ -209,7 +262,7 @@ export class Dice extends THREE.Group {
     const colors = {
       x: {},
       y: {},
-      z: {},
+      z: {}
     };
     this.iterateIndexInAxes(index, (axis, iterationIndex) => {
       const box = this.boxes[iterationIndex];
@@ -228,31 +281,34 @@ export class Dice extends THREE.Group {
     return -1;
   }
 
-  convertPositionToIndex({x, y, z}) {
-    return (x + 1) + (y + 1) * 3 + (z + 1) * 9;
+  convertPositionToIndex({ x, y, z }) {
+    return x + 1 + (y + 1) * 3 + (z + 1) * 9;
   }
 
   convertIndexToPosition(index) {
     const z = Math.floor(index / 9) - 1;
     const y = Math.floor((index - (z + 1) * 9) / 3) - 1;
-    const x = Math.floor((index - (z + 1) * 9) - (y + 1) * 3) - 1;
+    const x = Math.floor(index - (z + 1) * 9 - (y + 1) * 3) - 1;
     return { x, y, z };
   }
 
   iterateIndexInAxes(index, cb, axes) {
     const p = this.convertIndexToPosition(index);
     if (!axes || axes.includes("x")) {
-      for (let i = -1; i <= 1; i++) { // x
+      for (let i = -1; i <= 1; i++) {
+        // x
         cb("x", this.convertPositionToIndex({ x: i, y: p.y, z: p.z }));
       }
     }
     if (!axes || axes.includes("y")) {
-      for (let j = -1; j <= 1; j++) { // y
+      for (let j = -1; j <= 1; j++) {
+        // y
         cb("y", this.convertPositionToIndex({ x: p.x, y: j, z: p.z }));
       }
     }
     if (!axes || axes.includes("z")) {
-      for (let k = -1; k <= 1; k++) { // z
+      for (let k = -1; k <= 1; k++) {
+        // z
         cb("z", this.convertPositionToIndex({ x: p.x, y: p.y, z: k }));
       }
     }

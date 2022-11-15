@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
 export class Audio {
-
   constructor(camera) {
     this.camera = camera;
     this.audioLoader = new THREE.AudioLoader();
@@ -23,6 +22,7 @@ export class Audio {
       return;
     }
     this.sounds.ambient = new THREE.Audio(this.listener);
+    // TODO: Check sound
     this.audioLoader.load("sfx/ambient.mp3", (buffer) => {
       this.sounds.ambient.setBuffer(buffer);
       this.sounds.ambient.setLoop(true);
@@ -56,6 +56,34 @@ export class Audio {
       this.sounds.pop.setBuffer(buffer);
       this.sounds.pop.setVolume(2);
       this.sounds.pop.play();
+    });
+  }
+
+  playBlock() {
+    this.initListener();
+    if (this.sounds.block) {
+      this.sounds.block.play();
+      return;
+    }
+    this.sounds.block = new THREE.Audio(this.listener);
+    this.audioLoader.load("sfx/block.mp3", (buffer) => {
+      this.sounds.block.setBuffer(buffer);
+      this.sounds.block.setVolume(2);
+      this.sounds.block.play();
+    });
+  }
+
+  playEnd() {
+    this.initListener();
+    if (this.sounds.end) {
+      this.sounds.end.play();
+      return;
+    }
+    this.sounds.end = new THREE.Audio(this.listener);
+    this.audioLoader.load("sfx/end.mp3", (buffer) => {
+      this.sounds.end.setBuffer(buffer);
+      this.sounds.end.setVolume(2);
+      this.sounds.end.play();
     });
   }
 }

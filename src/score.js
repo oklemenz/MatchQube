@@ -1,5 +1,4 @@
 export class Score {
-
   constructor(booster) {
     this.booster = booster;
     this.score = 0;

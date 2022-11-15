@@ -1,19 +1,18 @@
 import * as THREE from "three";
 
 export class Materials {
-
   constructor(scene) {
     this.scene = scene;
 
     this.COLOR = {
-      RED: 0xFF3B30,
-      ORANGE: 0xFF9500,
-      YELLOW: 0xFFCC00,
-      GREEN: 0x4CD964,
-      TEAL: 0x5AC8FA,
-      BLUE: 0x007AFF,
-      PURPLE: 0x5856D6,
-      PINK: 0xFF2D55,
+      RED: 0xff3b30,
+      ORANGE: 0xff9500,
+      YELLOW: 0xffcc00,
+      GREEN: 0x4cd964,
+      TEAL: 0x5ac8fa,
+      BLUE: 0x007aff,
+      PURPLE: 0x5856d6,
+      PINK: 0xff2d55
     };
 
     this.COLORS = [
@@ -33,7 +32,7 @@ export class Materials {
       thickness: 0.3,
       clearcoat: 0.5,
       envMap: this.scene.background,
-      envMapIntensity: 2,
+      envMapIntensity: 2
     });
 
     this.METAL_MATERIALS = this.COLORS.map((color) => {
@@ -45,7 +44,7 @@ export class Materials {
         thickness: 1.0,
         clearcoat: 1.0,
         envMap: this.scene.background,
-        envMapIntensity: 1.25,
+        envMapIntensity: 1.25
       });
     });
   }

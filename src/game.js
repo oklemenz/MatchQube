@@ -35,12 +35,9 @@ export function init() {
   const light = new THREE.AmbientLight(0xfff0dd, 1);
   scene.add(light);
 
-  const hdrEquirect = new RGBELoader().load(
-    "hdr/neon.hdr",
-    () => {
-      hdrEquirect.mapping = THREE.EquirectangularReflectionMapping;
-    }
-  );
+  const hdrEquirect = new RGBELoader().load("hdr/neon.hdr", () => {
+    hdrEquirect.mapping = THREE.EquirectangularReflectionMapping;
+  });
   scene.background = hdrEquirect;
 
   const booster = new Booster();
@@ -67,8 +64,8 @@ export function init() {
     if (dice.check() && dice.running) {
       gameOver();
     }
-    // TODO: Decrease spawnRate
-    // TODO: Increase colors
+    // TODO: Slowly decrease spawnRate
+    // TODO: Increase colors after reaching points 100 / 200, etc..
   }
 
   function startGame() {
@@ -85,6 +82,7 @@ export function init() {
     dice.stop();
     booster.reset();
     setStatus("Game Over - Click to Start");
+    audio.playEnd();
   }
 
   function setStatus(text) {
@@ -98,16 +96,32 @@ export function init() {
   }
 
   function onPointerDown(event) {
+    this.pointer = {x: event.clientX, y: event.clientY};
     dice.stopAutoRotate();
   }
 
+  function onPointerMove(event) {
+    if (this.pointer && distance(this.pointer, {x: event.clientX, y: event.clientY}) > 2) {
+      dice.resetPointer();
+      this.pointer = null;
+    }
+  }
+
   function onPointerUp(event) {
-    // calculate pointer position in normalized device coordinates (-1 to +1) for both components
-    dice.setPointer((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
-    dice.startAutoRotate();
+    if (this.pointer) {
+      this.pointer = null;
+      // calculate pointer position in normalized device coordinates (-1 to +1) for both components
+      dice.setPointer((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
+      dice.startAutoRotate();
+    }
+  }
+
+  function distance(pointA, pointB){
+    return Math.sqrt(Math.pow(pointA.x - pointB.x, 2) + Math.pow(pointA.y - pointB.y, 2));
   }
 
   window.addEventListener("pointerdown", onPointerDown);
+  window.addEventListener("pointermove", onPointerMove);
   window.addEventListener("pointerup", onPointerUp);
   status.addEventListener("click", startGame);
 
@@ -115,5 +129,5 @@ export function init() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-  }
+  };
 }

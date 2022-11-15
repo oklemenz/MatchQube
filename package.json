@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "description": "Match Qube",
   "dependencies": {
-    "http-server": "^14.1.1"
+    "eslint": "^8.27.0",
+    "eslint-config-prettier": "^8.5.0",
+    "http-server": "^14.1.1",
+    "prettier": "^2.7.1"
   },
-  "devDependencies": {},
   "scripts": {
-    "start": "http-server"
+    "start": "http-server",
+    "lint": "npm run prettier && eslint . --fix",
+    "prettier": "prettier \"**/*.{js,json,md,html}\" --write --loglevel error"
   },
   "author": "",
   "license": "ISC"

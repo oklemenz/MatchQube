@@ -1,11 +1,10 @@
 export class Booster {
-
-  static STATE_INITIAL  = 0;
-  static STATE_CHARGE   = 1;
+  static STATE_INITIAL = 0;
+  static STATE_CHARGE = 1;
   static STATE_WAIT_RUN = 2;
-  static STATE_RUN      = 3;
-  static STATE_LAPSED   = 4;
-  static STATE_WAIT     = 5;
+  static STATE_RUN = 3;
+  static STATE_LAPSED = 4;
+  static STATE_WAIT = 5;
 
   constructor() {
     this.boosterProgress = document.getElementById("booster-progress");
