@@ -21,6 +21,7 @@ export class Score {
     setTimeout(() => {
       this.scoreElement.classList.remove("start-pulse");
     }, 1000);
+    return this.score;
   }
 
   setHighscore() {

@@ -25,6 +25,7 @@ export class Materials {
       this.COLOR.PURPLE,
       this.COLOR.PINK
     ];
+    this.colorCount = this.COLOR.length;
 
     this.GLASS_MATERIAL = new THREE.MeshPhysicalMaterial({
       roughness: 0,

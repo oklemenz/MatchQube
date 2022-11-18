@@ -18,10 +18,9 @@ export class Dice extends THREE.Group {
     this.boxes = [];
     this.spheres = [];
     this.colors = 2;
-    this.colorIncreaseRate = 100;
     this.spawnRate = 3000;
     this.minSpawnRate = 1000;
-    this.spawnDecreaseRate = 10;
+    this.spawnDecreaseRate = 1;
     this.running = false;
     this.autoRotationSpeed = 0;
     this.autoRotationSpeed = 0;
@@ -33,12 +32,12 @@ export class Dice extends THREE.Group {
   }
 
   setup() {
+    // x
     for (let i = -1; i <= 1; i++) {
-      // x
+      // y
       for (let j = -1; j <= 1; j++) {
-        // y
+        // z
         for (let k = -1; k <= 1; k++) {
-          // z
           const box = new Box([i, j, k], this.materials);
           this.add(box);
           this.boxes.push(box);
@@ -108,12 +107,7 @@ export class Dice extends THREE.Group {
     if (this.autoRotationSpeed > 0) {
       this.rotation.y += this.autoRotationSpeed / 100;
     }
-    const delta = this.clock.getElapsedTime() * 1000;
-    if (delta > this.spawnRate) {
-      this.clock.stop();
-      this.spawn();
-      this.clock.start();
-    }
+    this.checkSpawn();
     this.checkIntersections();
   }
 
@@ -122,7 +116,11 @@ export class Dice extends THREE.Group {
     await this.explodeSphere(firstSphere);
     await this.explodeSphere(middleSphere);
     await this.explodeSphere(lastSphere);
-    this.score.addScore(1);
+    const scoreBefore = this.score.score;
+    const scoreAfter = this.score.addScore();
+    if (scoreAfter >= 100 && String(scoreAfter).length - String(scoreBefore) > 0 && this.colors < this.materials.colorCount - 1) {
+      this.colors++;
+    }
   }
 
   async blockSphere(sphere) {
@@ -185,6 +183,18 @@ export class Dice extends THREE.Group {
     }
   }
 
+  checkSpawn() {
+    const delta = this.clock.getElapsedTime() * 1000;
+    if (delta > this.spawnRate) {
+      this.clock.stop();
+      this.spawn();
+      if (this.spawnRate > this.minSpawnRate) {
+        this.spawnRate -= this.spawnDecreaseRate;
+      }
+      this.clock.start();
+    }
+  }
+
   spawn() {
     if (!this.running) {
       return;
@@ -203,9 +213,6 @@ export class Dice extends THREE.Group {
       const sphere = box.fill(color);
       this.spheres.push(sphere);
       this.audio.playAppear();
-      if (this.spawnRate > this.minSpawnRate) {
-        this.spawnRate -= this.spawnDecreaseRate;
-      }
     }
   }
 

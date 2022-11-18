@@ -64,8 +64,6 @@ export function init() {
     if (dice.check() && dice.running) {
       gameOver();
     }
-    // TODO: Slowly decrease spawnRate
-    // TODO: Increase colors after reaching points 100 / 200, etc..
   }
 
   function startGame() {
@@ -112,8 +110,8 @@ export function init() {
       this.pointer = null;
       // calculate pointer position in normalized device coordinates (-1 to +1) for both components
       dice.setPointer((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
-      dice.startAutoRotate();
     }
+    dice.startAutoRotate();
   }
 
   function distance(pointA, pointB){

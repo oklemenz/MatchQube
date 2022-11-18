@@ -22,7 +22,6 @@ export class Audio {
       return;
     }
     this.sounds.ambient = new THREE.Audio(this.listener);
-    // TODO: Check sound
     this.audioLoader.load("sfx/ambient.mp3", (buffer) => {
       this.sounds.ambient.setBuffer(buffer);
       this.sounds.ambient.setLoop(true);
