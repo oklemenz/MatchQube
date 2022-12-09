@@ -153,7 +153,6 @@ export class Dice extends THREE.Group {
 
   async explodeSphere(sphere) {
     return new Promise((resolve) => {
-      // TODO: Particle explode (refine tween)
       const tween = new TWEEN.Tween(sphere.scale)
         .to(
           {
