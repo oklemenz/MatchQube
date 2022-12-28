@@ -3,7 +3,7 @@
     "short_name": "Match Qube",
     "description": "Match Qube",
     "icons": [{
-        "src": "assets/web/touch-icon-192.png",
+        "src": "img/touch-icon-192.png",
         "sizes": "192x192",
         "type": "image/png"
     }],
