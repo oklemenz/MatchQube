@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Match Qube",
   "dependencies": {
-    "eslint": "^8.27.0",
-    "eslint-config-prettier": "^8.5.0",
+    "eslint": "^8.31.0",
+    "eslint-config-prettier": "^8.6.0",
     "http-server": "^14.1.1",
-    "prettier": "^2.7.1"
+    "prettier": "^2.8.2"
   },
   "scripts": {
     "start": "http-server",

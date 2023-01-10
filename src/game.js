@@ -94,12 +94,12 @@ export function init() {
   }
 
   function onPointerDown(event) {
-    this.pointer = {x: event.clientX, y: event.clientY};
+    this.pointer = { x: event.clientX, y: event.clientY };
     dice.stopAutoRotate();
   }
 
   function onPointerMove(event) {
-    if (this.pointer && distance(this.pointer, {x: event.clientX, y: event.clientY}) > 2) {
+    if (this.pointer && distance(this.pointer, { x: event.clientX, y: event.clientY }) > 2) {
       dice.resetPointer();
       this.pointer = null;
     }
@@ -114,7 +114,7 @@ export function init() {
     dice.startAutoRotate();
   }
 
-  function distance(pointA, pointB){
+  function distance(pointA, pointB) {
     return Math.sqrt(Math.pow(pointA.x - pointB.x, 2) + Math.pow(pointA.y - pointB.y, 2));
   }
 

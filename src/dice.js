@@ -118,7 +118,11 @@ export class Dice extends THREE.Group {
     await this.explodeSphere(lastSphere);
     const scoreBefore = this.score.score;
     const scoreAfter = this.score.addScore();
-    if (scoreAfter >= 100 && String(scoreAfter).length - String(scoreBefore) > 0 && this.colors < this.materials.colorCount - 1) {
+    if (
+      scoreAfter >= 100 &&
+      String(scoreAfter).length - String(scoreBefore) > 0 &&
+      this.colors < this.materials.colorCount - 1
+    ) {
       this.colors++;
     }
   }

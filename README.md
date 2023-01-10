@@ -1,7 +1,7 @@
 # Match Qube
 
-Match Qube is a minimalistic 3D-based browser game. 
-Place three spheres of the same color on top of each other for a match. 
+Match Qube is a minimalistic 3D-based browser game.
+Place three spheres of the same color on top of each other for a match.
 Play against time before the qube is filled and game is over.
 
 ## Play Online
@@ -18,7 +18,6 @@ Play against time before the qube is filled and game is over.
 - Install [Node.js](https://nodejs.org)
 - Clone: `https://github.com/oklemenz/MatchQube.git`
 - Terminal:
-    - `npm install`
-    - `npm start`
+  - `npm install`
+  - `npm start`
 - Browser: `localhost:8080`
-
