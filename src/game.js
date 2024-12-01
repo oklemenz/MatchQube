@@ -48,6 +48,7 @@ export function init() {
   scene.add(dice);
   setStatus("Click to Start");
   render();
+  suppressMagnifierGlass();
 
   function render() {
     requestAnimationFrame(render);
@@ -128,4 +129,16 @@ export function init() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   };
+
+  function suppressMagnifierGlass() {
+    const [canvas] = document.getElementsByTagName("canvas");
+    const canvasPreventDefault = function (e) {
+      if (e.target === canvas) {
+        e.preventDefault();
+      }
+    }
+    document.body.addEventListener("touchstart", canvasPreventDefault, false);
+    document.body.addEventListener("touchend", canvasPreventDefault, false);
+    document.body.addEventListener("touchmove", canvasPreventDefault, false);
+  }
 }
