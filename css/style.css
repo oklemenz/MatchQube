@@ -50,6 +50,13 @@ canvas {
     height: 100%;
     touch-action: none;
     pointer-events: none;
+    padding-top: 10px;
+}
+
+@media (orientation: landscape) {
+    .letterbox {
+        padding-top: 20px;
+    }
 }
 
 .header {
@@ -58,13 +65,6 @@ canvas {
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 10px;
-}
-
-@media (orientation: landscape) {
-    .header {
-        margin-top: 20px;
-    }
 }
 
 .header_sides {
